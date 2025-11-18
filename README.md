@@ -1,734 +1,367 @@
-# MÔ TẢ CHI TIẾT CÁC CHỨC NĂNG HỆ THỐNG
+# DETAILED SYSTEM FUNCTIONS DESCRIPTION
 
-Tài liệu này mô tả chi tiết các chức năng của hệ thống GIVE-AID theo cấu trúc Input-Process-Output.
+This document describes in detail the functions of the GIVE-AID system following the Input-Process-Output structure.
 
 ---
 
-## **COMMON FUNCTIONS (Chức năng dùng chung)**
+## **COMMON FUNCTIONS**
 
-### **Tên chức năng 1: Đăng ký tài khoản (Register)**
+### **Function 1: Register Account (Register)**
 
 | | |
 |---|---|
-| **Input** | • Người dùng nhập thông tin: Họ tên, Tên đăng nhập, Email, Mật khẩu, Số điện thoại (tùy chọn), Địa chỉ (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống kiểm tra Email và Tên đăng nhập đã tồn tại trong database chưa<br>• Nếu đã tồn tại, hệ thống thông báo lỗi cho người dùng<br>• Nếu chưa tồn tại, hệ thống mã hóa mật khẩu và tạo token xác thực email<br>• Hệ thống tạo tài khoản mới với trạng thái email chưa xác thực<br>• Hệ thống lưu thông tin người dùng vào database<br>• Hệ thống gửi email xác thực cho người dùng (gửi bất đồng bộ, không chặn phản hồi)<br>• Hệ thống trả về token đăng nhập và thông báo thành công |
-| **Output** | • Kết quả là thông báo thành công hoặc thông báo lỗi cho người dùng |
+| **Input** | • User enters information: Full name, Username, Email, Password, Phone (optional), Address (optional) |
+| **Process** | • System checks if input data is valid<br>• System checks if Email and Username already exist in the database<br>• If already exists, system displays error message to user<br>• If not exists, system encrypts password and creates email verification token<br>• System creates new account with unverified email status<br>• System saves user information to database<br>• System sends verification email to user (sent asynchronously, does not block response)<br>• System returns login token and success message |
+| **Output** | • Result is a success message or error message for the user |
 
 ---
 
-### **Tên chức năng 2: Đăng nhập (Login)**
+### **Function 2: Login**
 
 | | |
 |---|---|
-| **Input** | • Người dùng nhập Tên đăng nhập hoặc Email và Mật khẩu |
-| **Process** | • Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống xác định người dùng nhập Email hay Tên đăng nhập<br>• Hệ thống tìm kiếm người dùng trong database theo Email hoặc Tên đăng nhập<br>• Nếu không tìm thấy, hệ thống thông báo lỗi đăng nhập<br>• Nếu tìm thấy, hệ thống xác minh mật khẩu<br>• Nếu mật khẩu sai, hệ thống thông báo lỗi đăng nhập<br>• Nếu mật khẩu đúng, hệ thống kiểm tra email đã được xác thực chưa<br>• Nếu email chưa xác thực, hệ thống yêu cầu người dùng xác thực email trước<br>• Nếu email đã xác thực, hệ thống tạo token đăng nhập và trả về cho người dùng |
-| **Output** | • Kết quả là token đăng nhập và thông báo thành công, hoặc thông báo lỗi cho người dùng |
+| **Input** | • User enters Username or Email and Password |
+| **Process** | • System checks if input data is valid<br>• System determines if user entered Email or Username<br>• System searches for user in database by Email or Username<br>• If not found, system displays login error<br>• If found, system verifies password<br>• If password is incorrect, system displays login error<br>• If password is correct, system checks if email has been verified<br>• If email is not verified, system requires user to verify email first<br>• If email is verified, system creates login token and returns it to user |
+| **Output** | • Result is login token and success message, or error message for the user |
 
 ---
 
-### **Tên chức năng 3: Xác thực email (Verify Email)**
+### **Function 3: Verify Email**
 
 | | |
 |---|---|
-| **Input** | • Người dùng nhập token xác thực từ link trong email |
-| **Process** | • Hệ thống kiểm tra token có hợp lệ không<br>• Hệ thống tìm kiếm người dùng có token xác thực khớp và chưa hết hạn<br>• Nếu không tìm thấy hoặc token hết hạn, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống đánh dấu email đã được xác thực<br>• Hệ thống xóa token xác thực và thời hạn token<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo xác thực thành công |
-| **Output** | • Kết quả là thông báo xác thực thành công hoặc thông báo lỗi cho người dùng |
+| **Input** | • User enters verification token from link in email |
+| **Process** | • System checks if token is valid<br>• System searches for user with matching verification token that has not expired<br>• If not found or token expired, system displays error<br>• If found, system marks email as verified<br>• System removes verification token and token expiry<br>• System saves changes to database<br>• System displays verification success message |
+| **Output** | • Result is verification success message or error message for the user |
 
 ---
 
-### **Tên chức năng 4: Quên mật khẩu (Forgot Password)**
+### **Function 4: Forgot Password**
 
 | | |
 |---|---|
-| **Input** | • Người dùng nhập Email |
-| **Process** | • Hệ thống kiểm tra Email có hợp lệ không<br>• Hệ thống tìm kiếm người dùng trong database theo Email<br>• Nếu tìm thấy, hệ thống tạo token đặt lại mật khẩu và đặt thời hạn hết hạn<br>• Hệ thống lưu token vào database<br>• Hệ thống gửi email chứa link đặt lại mật khẩu cho người dùng (gửi bất đồng bộ)<br>• Hệ thống luôn trả về thông báo thành công (bảo mật, không tiết lộ email có tồn tại hay không) |
-| **Output** | • Kết quả là thông báo thành công cho người dùng (nếu email tồn tại, link đặt lại mật khẩu đã được gửi) |
+| **Input** | • User enters Email |
+| **Process** | • System checks if Email is valid<br>• System searches for user in database by Email<br>• If found, system creates password reset token and sets expiry time<br>• System saves token to database<br>• System sends email containing password reset link to user (sent asynchronously)<br>• System always returns success message (security, does not reveal if email exists or not) |
+| **Output** | • Result is success message for the user (if email exists, password reset link has been sent) |
 
 ---
 
-### **Tên chức năng 5: Đặt lại mật khẩu (Reset Password)**
+### **Function 5: Reset Password**
 
 | | |
 |---|---|
-| **Input** | • Người dùng nhập token đặt lại mật khẩu từ link trong email và mật khẩu mới |
-| **Process** | • Hệ thống kiểm tra token và mật khẩu mới có hợp lệ không<br>• Hệ thống tìm kiếm người dùng có token đặt lại mật khẩu khớp và chưa hết hạn<br>• Nếu không tìm thấy hoặc token hết hạn, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống mã hóa mật khẩu mới<br>• Hệ thống cập nhật mật khẩu mới vào database<br>• Hệ thống xóa token đặt lại mật khẩu và thời hạn token<br>• Hệ thống thông báo đặt lại mật khẩu thành công |
-| **Output** | • Kết quả là thông báo đặt lại mật khẩu thành công hoặc thông báo lỗi cho người dùng |
+| **Input** | • User enters password reset token from link in email and new password |
+| **Process** | • System checks if token and new password are valid<br>• System searches for user with matching password reset token that has not expired<br>• If not found or token expired, system displays error<br>• If found, system encrypts new password<br>• System updates new password to database<br>• System removes password reset token and token expiry<br>• System displays password reset success message |
+| **Output** | • Result is password reset success message or error message for the user |
 
 ---
 
-### **Tên chức năng 6: Thực hiện quyên góp (Donate)**
+### **Function 6: Make Donation (Donate)**
 
 | | |
 |---|---|
-| **Input** | • Người dùng nhập thông tin quyên góp: Số tiền, Nguyên nhân, Họ tên, Email, Số điện thoại (tùy chọn), Địa chỉ (tùy chọn), Phương thức thanh toán (tùy chọn), Chọn chương trình (tùy chọn), Chọn ẩn danh (tùy chọn), Đăng ký nhận tin (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống kiểm tra số tiền lớn hơn 0, nguyên nhân không rỗng, họ tên không rỗng, email không rỗng<br>• Hệ thống tạo mã giao dịch duy nhất cho quyên góp<br>• Nếu người dùng chọn ẩn danh, hệ thống đặt tên người quyên góp là "Anonymous"<br>• Hệ thống tạo bản ghi quyên góp với trạng thái thanh toán thành công<br>• Hệ thống lưu thông tin quyên góp vào database<br>• Nếu không phải ẩn danh và có email, hệ thống gửi email xác nhận quyên góp cho người dùng (gửi bất đồng bộ)<br>• Hệ thống trả về thông tin quyên góp đã tạo |
-| **Output** | • Kết quả là thông tin quyên góp đã tạo hoặc thông báo lỗi cho người dùng |
+| **Input** | • User enters donation information: Amount, Cause, Full name, Email, Phone (optional), Address (optional), Payment method (optional), Select program (optional), Select anonymous (optional), Subscribe newsletter (optional) |
+| **Process** | • System checks if input data is valid<br>• System checks amount is greater than 0, cause is not empty, full name is not empty, email is not empty<br>• System creates unique transaction reference for donation<br>• If user selects anonymous, system sets donor name as "Anonymous"<br>• System creates donation record with successful payment status<br>• System saves donation information to database<br>• If not anonymous and has email, system sends donation confirmation email to user (sent asynchronously)<br>• System returns created donation information |
+| **Output** | • Result is created donation information or error message for the user |
 
 ---
 
-### **Tên chức năng 7: Xem danh sách chương trình (View Programs)**
+### **Function 7: View Programs List (View Programs)**
 
 | | |
 |---|---|
-| **Input** | • Người dùng truy cập trang danh sách chương trình |
-| **Process** | • Hệ thống truy vấn database lấy tất cả chương trình<br>• Hệ thống sắp xếp danh sách chương trình<br>• Hệ thống hiển thị danh sách chương trình cho người dùng |
-| **Output** | • Kết quả là danh sách các chương trình hiển thị cho người dùng |
+| **Input** | • User accesses programs list page |
+| **Process** | • System queries database to get all programs<br>• System sorts programs list<br>• System displays programs list to user |
+| **Output** | • Result is list of programs displayed to user |
 
 ---
 
-### **Tên chức năng 8: Xem thống kê chương trình (View Program Stats)**
+### **Function 8: View Program Statistics (View Program Stats)**
 
 | | |
 |---|---|
-| **Input** | • Người dùng chọn chương trình muốn xem thống kê |
-| **Process** | • Hệ thống lấy thông tin chương trình từ database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống tính tổng số tiền quyên góp cho chương trình<br>• Hệ thống tính phần trăm hoàn thành mục tiêu<br>• Hệ thống đếm số lượt đăng ký tham gia chương trình<br>• Hệ thống tính số tiền còn lại cần quyên góp (nếu có mục tiêu)<br>• Hệ thống hiển thị thống kê cho người dùng |
-| **Output** | • Kết quả là thông tin thống kê chương trình hiển thị cho người dùng, hoặc thông báo lỗi nếu không tìm thấy chương trình |
+| **Input** | • User selects program to view statistics |
+| **Process** | • System retrieves program information from database<br>• If not found, system displays error<br>• If found, system calculates total donation amount for program<br>• System calculates goal completion percentage<br>• System counts number of program registrations<br>• System calculates remaining amount needed (if goal exists)<br>• System displays statistics to user |
+| **Output** | • Result is program statistics information displayed to user, or error message if program not found |
 
 ---
 
-### **Tên chức năng 9: Đăng ký tham gia chương trình (Register for Program)**
+### **Function 9: Register for Program (Register for Program)**
 
 | | |
 |---|---|
-| **Input** | • Người dùng nhập thông tin: Họ tên, Email, Số điện thoại (tùy chọn) và chọn chương trình muốn đăng ký |
-| **Process** | • Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống kiểm tra chương trình có tồn tại trong database không<br>• Nếu không tồn tại, hệ thống thông báo lỗi<br>• Nếu tồn tại, hệ thống kiểm tra người dùng đã đăng ký chương trình này chưa (nếu đã đăng nhập)<br>• Nếu đã đăng ký, hệ thống thông báo lỗi<br>• Nếu chưa đăng ký, hệ thống tạo bản ghi đăng ký mới<br>• Hệ thống lưu thông tin đăng ký vào database<br>• Hệ thống thông báo đăng ký thành công |
-| **Output** | • Kết quả là thông báo đăng ký thành công hoặc thông báo lỗi cho người dùng |
+| **Input** | • User enters information: Full name, Email, Phone (optional) and selects program to register |
+| **Process** | • System checks if input data is valid<br>• System checks if program exists in database<br>• If not exists, system displays error<br>• If exists, system checks if user has already registered for this program (if logged in)<br>• If already registered, system displays error<br>• If not registered, system creates new registration record<br>• System saves registration information to database<br>• System displays registration success message |
+| **Output** | • Result is registration success message or error message for the user |
 
 ---
 
-### **Tên chức năng 10: Gửi câu hỏi/Yêu cầu (Submit Query)**
+### **Function 10: Submit Query/Request (Submit Query)**
 
 | | |
 |---|---|
-| **Input** | • Người dùng nhập thông tin: Tiêu đề, Nội dung câu hỏi, Email, Họ tên (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống tạo bản ghi câu hỏi mới<br>• Hệ thống lưu thông tin câu hỏi vào database<br>• Hệ thống trả về thông tin câu hỏi đã tạo |
-| **Output** | • Kết quả là thông tin câu hỏi đã được gửi thành công |
+| **Input** | • User enters information: Subject, Query content, Email, Full name (optional) |
+| **Process** | • System checks if input data is valid<br>• System creates new query record<br>• System saves query information to database<br>• System returns created query information |
+| **Output** | • Result is query information successfully submitted |
 
 ---
 
-### **Tên chức năng 11: Xem hồ sơ cá nhân (View Profile)** - Chỉ Authenticated User
+### **Function 11: View Profile** - Authenticated User Only
 
 | | |
 |---|---|
-| **Input** | • Người dùng đã đăng nhập truy cập trang hồ sơ cá nhân |
-| **Process** | • Hệ thống kiểm tra token đăng nhập có hợp lệ không<br>• Hệ thống lấy thông tin người dùng từ token<br>• Nếu token không hợp lệ, hệ thống từ chối truy cập<br>• Hệ thống truy vấn database lấy thông tin hồ sơ cá nhân của người dùng<br>• Nếu chưa có hồ sơ, hệ thống trả về thông tin rỗng<br>• Nếu có hồ sơ, hệ thống hiển thị thông tin hồ sơ cho người dùng |
-| **Output** | • Kết quả là thông tin hồ sơ cá nhân hiển thị cho người dùng, hoặc thông báo lỗi nếu không có quyền truy cập |
+| **Input** | • Logged-in user accesses profile page |
+| **Process** | • System checks if login token is valid<br>• System retrieves user information from token<br>• If token is invalid, system denies access<br>• System queries database to get user's profile information<br>• If no profile exists, system returns empty information<br>• If profile exists, system displays profile information to user |
+| **Output** | • Result is user profile information displayed to user, or error message if no access permission |
 
 ---
 
-### **Tên chức năng 12: Cập nhật hồ sơ cá nhân (Update Profile)** - Chỉ Authenticated User
+### **Function 12: Update Profile** - Authenticated User Only
 
 | | |
 |---|---|
-| **Input** | • Người dùng đã đăng nhập nhập thông tin cần cập nhật: Họ tên, Số điện thoại, Địa chỉ, Ngày sinh, Giới tính (tất cả đều tùy chọn) |
-| **Process** | • Hệ thống kiểm tra token đăng nhập có hợp lệ không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống lấy thông tin người dùng từ token<br>• Hệ thống tìm kiếm hồ sơ cá nhân của người dùng trong database<br>• Nếu chưa có hồ sơ, hệ thống tạo hồ sơ mới<br>• Nếu đã có hồ sơ, hệ thống cập nhật các trường thông tin từ dữ liệu người dùng nhập<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo cập nhật thành công |
-| **Output** | • Kết quả là thông báo cập nhật thành công hoặc thông báo lỗi cho người dùng |
+| **Input** | • Logged-in user enters information to update: Full name, Phone, Address, Date of birth, Gender (all optional) |
+| **Process** | • System checks if login token is valid<br>• System checks if input data is valid<br>• System retrieves user information from token<br>• System searches for user's profile in database<br>• If no profile exists, system creates new profile<br>• If profile exists, system updates information fields from user input data<br>• System saves changes to database<br>• System displays update success message |
+| **Output** | • Result is update success message or error message for the user |
 
 ---
 
-### **Tên chức năng 13: Đổi mật khẩu (Change Password)** - Chỉ Authenticated User
+### **Function 13: Change Password** - Authenticated User Only
 
 | | |
 |---|---|
-| **Input** | • Người dùng đã đăng nhập nhập mật khẩu cũ và mật khẩu mới |
-| **Process** | • Hệ thống kiểm tra token đăng nhập có hợp lệ không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống lấy thông tin người dùng từ token<br>• Hệ thống tìm kiếm người dùng trong database<br>• Hệ thống xác minh mật khẩu cũ có đúng không<br>• Nếu mật khẩu cũ sai, hệ thống thông báo lỗi<br>• Nếu mật khẩu cũ đúng, hệ thống mã hóa mật khẩu mới<br>• Hệ thống cập nhật mật khẩu mới vào database<br>• Hệ thống thông báo đổi mật khẩu thành công |
-| **Output** | • Kết quả là thông báo đổi mật khẩu thành công hoặc thông báo lỗi cho người dùng |
+| **Input** | • Logged-in user enters old password and new password |
+| **Process** | • System checks if login token is valid<br>• System checks if input data is valid<br>• System retrieves user information from token<br>• System searches for user in database<br>• System verifies if old password is correct<br>• If old password is incorrect, system displays error<br>• If old password is correct, system encrypts new password<br>• System updates new password to database<br>• System displays password change success message |
+| **Output** | • Result is password change success message or error message for the user |
 
 ---
 
-### **Tên chức năng 14: Xem lịch sử quyên góp (View Donation History)** - Chỉ Authenticated User
+### **Function 14: View Donation History** - Authenticated User Only
 
 | | |
 |---|---|
-| **Input** | • Người dùng đã đăng nhập truy cập trang lịch sử quyên góp |
-| **Process** | • Hệ thống kiểm tra token đăng nhập có hợp lệ không<br>• Hệ thống lấy thông tin người dùng từ token<br>• Hệ thống truy vấn database lấy tất cả quyên góp của người dùng<br>• Hệ thống sắp xếp danh sách quyên góp theo thời gian (mới nhất trước)<br>• Hệ thống hiển thị danh sách quyên góp cho người dùng |
-| **Output** | • Kết quả là danh sách các quyên góp của người dùng hiển thị trên trang |
+| **Input** | • Logged-in user accesses donation history page |
+| **Process** | • System checks if login token is valid<br>• System retrieves user information from token<br>• System queries database to get all user's donations<br>• System sorts donations list by time (newest first)<br>• System displays donations list to user |
+| **Output** | • Result is list of user's donations displayed on page |
 
 ---
 
-## **ADMIN FUNCTIONS (Chức năng quản trị)**
+## **ADMIN FUNCTIONS**
 
-### **Tên chức năng 1: Quản lý người dùng - Xem danh sách (Get All Users)**
+### **Function 1: User Management - View List (Get All Users)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên truy cập trang quản lý người dùng |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Nếu không có quyền, hệ thống từ chối truy cập<br>• Hệ thống truy vấn database lấy tất cả người dùng<br>• Hệ thống hiển thị danh sách người dùng cho quản trị viên (không hiển thị mật khẩu) |
-| **Output** | • Kết quả là danh sách tất cả người dùng hiển thị cho quản trị viên, hoặc thông báo lỗi nếu không có quyền |
+| **Input** | • Administrator accesses user management page |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• If no permission, system denies access<br>• System queries database to get all users<br>• System displays users list to administrator (does not display passwords) |
+| **Output** | • Result is list of all users displayed to administrator, or error message if no permission |
 
 ---
 
-### **Tên chức năng 2: Quản lý người dùng - Xem chi tiết (Get User by ID)**
+### **Function 2: User Management - View Details (Get User by ID)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn người dùng muốn xem chi tiết |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID người dùng<br>• Hệ thống truy vấn database tìm kiếm người dùng theo ID<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống hiển thị thông tin chi tiết người dùng cho quản trị viên |
-| **Output** | • Kết quả là thông tin chi tiết người dùng hiển thị cho quản trị viên, hoặc thông báo lỗi nếu không tìm thấy hoặc không có quyền |
+| **Input** | • Administrator selects user to view details |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System retrieves user ID<br>• System queries database to search for user by ID<br>• If not found, system displays error<br>• If found, system displays user details to administrator |
+| **Output** | • Result is user details displayed to administrator, or error message if not found or no permission |
 
 ---
 
-### **Tên chức năng 3: Quản lý người dùng - Cập nhật vai trò (Update User Role)**
+### **Function 3: User Management - Update Role (Update User Role)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn người dùng và chọn vai trò mới (User hoặc Admin) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra vai trò có hợp lệ không<br>• Hệ thống lấy ID người dùng và vai trò mới<br>• Hệ thống tìm kiếm người dùng trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống cập nhật vai trò mới<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo cập nhật thành công |
-| **Output** | • Kết quả là thông báo cập nhật vai trò thành công hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator selects user and chooses new role (User or Admin) |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System checks if role is valid<br>• System retrieves user ID and new role<br>• System searches for user in database<br>• If not found, system displays error<br>• If found, system updates new role<br>• System saves changes to database<br>• System displays update success message |
+| **Output** | • Result is role update success message or error message for administrator |
 
 ---
 
-### **Tên chức năng 4: Quản lý người dùng - Xóa người dùng (Delete User)**
+### **Function 4: User Management - Delete User (Delete User)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn người dùng muốn xóa và xác nhận xóa |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID người dùng<br>• Hệ thống tìm kiếm người dùng trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống xóa người dùng khỏi database (có thể xóa kèm các bản ghi liên quan như quyên góp, câu hỏi)<br>• Hệ thống thông báo xóa thành công |
-| **Output** | • Kết quả là thông báo xóa thành công hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator selects user to delete and confirms deletion |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System retrieves user ID<br>• System searches for user in database<br>• If not found, system displays error<br>• If found, system deletes user from database (may delete related records such as donations, queries)<br>• System displays deletion success message |
+| **Output** | • Result is deletion success message or error message for administrator |
 
 ---
 
-### **Tên chức năng 5: Quản lý quyên góp - Xem tất cả (Get All Donations)**
+### **Function 5: Donation Management - View All (Get All Donations)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên truy cập trang quản lý quyên góp |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống truy vấn database lấy tất cả quyên góp (kèm thông tin người dùng nếu có)<br>• Hệ thống sắp xếp danh sách quyên góp theo thời gian (mới nhất trước)<br>• Hệ thống hiển thị danh sách quyên góp cho quản trị viên |
-| **Output** | • Kết quả là danh sách tất cả quyên góp hiển thị cho quản trị viên, hoặc thông báo lỗi nếu không có quyền |
+| **Input** | • Administrator accesses donation management page |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System queries database to get all donations (including user information if available)<br>• System sorts donations list by time (newest first)<br>• System displays donations list to administrator |
+| **Output** | • Result is list of all donations displayed to administrator, or error message if no permission |
 
 ---
 
-### **Tên chức năng 6: Quản lý quyên góp - Xem chi tiết (Get Donation by ID)**
+### **Function 6: Donation Management - View Details (Get Donation by ID)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn quyên góp muốn xem chi tiết |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID quyên góp<br>• Hệ thống truy vấn database tìm kiếm quyên góp theo ID (kèm thông tin người dùng)<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống hiển thị thông tin chi tiết quyên góp cho quản trị viên |
-| **Output** | • Kết quả là thông tin chi tiết quyên góp hiển thị cho quản trị viên, hoặc thông báo lỗi nếu không tìm thấy hoặc không có quyền |
+| **Input** | • Administrator selects donation to view details |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System retrieves donation ID<br>• System queries database to search for donation by ID (including user information)<br>• If not found, system displays error<br>• If found, system displays donation details to administrator |
+| **Output** | • Result is donation details displayed to administrator, or error message if not found or no permission |
 
 ---
 
-### **Tên chức năng 7: Quản lý chương trình - Tạo mới (Create Program)**
+### **Function 7: Program Management - Create New (Create Program)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên nhập thông tin chương trình: Tiêu đề, Mô tả, Ngày bắt đầu (tùy chọn), Ngày kết thúc (tùy chọn), Địa điểm (tùy chọn), Mục tiêu số tiền (tùy chọn), Chọn tổ chức NGO (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống tạo chương trình mới<br>• Hệ thống lưu thông tin chương trình vào database<br>• Hệ thống trả về thông tin chương trình đã tạo |
-| **Output** | • Kết quả là thông tin chương trình đã tạo hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator enters program information: Title, Description, Start date (optional), End date (optional), Location (optional), Goal amount (optional), Select NGO organization (optional) |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System checks if input data is valid<br>• System creates new program<br>• System saves program information to database<br>• System returns created program information |
+| **Output** | • Result is created program information or error message for administrator |
 
 ---
 
-### **Tên chức năng 8: Quản lý chương trình - Cập nhật (Update Program)**
+### **Function 8: Program Management - Update (Update Program)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn chương trình và nhập thông tin cần cập nhật: Tiêu đề, Mô tả, Ngày bắt đầu, Ngày kết thúc, Địa điểm, Mục tiêu số tiền, Tổ chức NGO (tất cả đều tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống lấy ID chương trình<br>• Hệ thống tìm kiếm chương trình trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống cập nhật các trường thông tin từ dữ liệu quản trị viên nhập<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo cập nhật thành công |
-| **Output** | • Kết quả là thông báo cập nhật thành công hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator selects program and enters information to update: Title, Description, Start date, End date, Location, Goal amount, NGO organization (all optional) |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System checks if input data is valid<br>• System retrieves program ID<br>• System searches for program in database<br>• If not found, system displays error<br>• If found, system updates information fields from administrator input data<br>• System saves changes to database<br>• System displays update success message |
+| **Output** | • Result is update success message or error message for administrator |
 
 ---
 
-### **Tên chức năng 9: Quản lý chương trình - Xóa (Delete Program)**
+### **Function 9: Program Management - Delete (Delete Program)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn chương trình muốn xóa và xác nhận xóa |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID chương trình<br>• Hệ thống tìm kiếm chương trình trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống xóa chương trình khỏi database (có thể xóa kèm các bản ghi liên quan như đăng ký tham gia, quyên góp, ảnh gallery)<br>• Hệ thống thông báo xóa thành công |
-| **Output** | • Kết quả là thông báo xóa thành công hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator selects program to delete and confirms deletion |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System retrieves program ID<br>• System searches for program in database<br>• If not found, system displays error<br>• If found, system deletes program from database (may delete related records such as registrations, donations, gallery images)<br>• System displays deletion success message |
+| **Output** | • Result is deletion success message or error message for administrator |
 
 ---
 
-### **Tên chức năng 10: Quản lý NGO - Tạo mới (Create NGO)**
+### **Function 10: NGO Management - Create New (Create NGO)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên nhập thông tin tổ chức NGO: Tên tổ chức, Mô tả (tùy chọn), URL logo (tùy chọn), Website (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống tạo tổ chức NGO mới<br>• Hệ thống lưu thông tin tổ chức NGO vào database<br>• Hệ thống trả về thông tin tổ chức NGO đã tạo |
-| **Output** | • Kết quả là thông tin tổ chức NGO đã tạo hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator enters NGO organization information: Organization name, Description (optional), Logo URL (optional), Website (optional) |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System checks if input data is valid<br>• System creates new NGO organization<br>• System saves NGO organization information to database<br>• System returns created NGO organization information |
+| **Output** | • Result is created NGO organization information or error message for administrator |
 
 ---
 
-### **Tên chức năng 11: Quản lý NGO - Cập nhật (Update NGO)**
+### **Function 11: NGO Management - Update (Update NGO)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn tổ chức NGO và nhập thông tin cần cập nhật: Tên tổ chức, Mô tả, URL logo, Website (tất cả đều tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống lấy ID tổ chức NGO<br>• Hệ thống tìm kiếm tổ chức NGO trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống cập nhật các trường thông tin từ dữ liệu quản trị viên nhập<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo cập nhật thành công |
-| **Output** | • Kết quả là thông báo cập nhật thành công hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator selects NGO organization and enters information to update: Organization name, Description, Logo URL, Website (all optional) |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System checks if input data is valid<br>• System retrieves NGO organization ID<br>• System searches for NGO organization in database<br>• If not found, system displays error<br>• If found, system updates information fields from administrator input data<br>• System saves changes to database<br>• System displays update success message |
+| **Output** | • Result is update success message or error message for administrator |
 
 ---
 
-### **Tên chức năng 12: Quản lý NGO - Xóa (Delete NGO)**
+### **Function 12: NGO Management - Delete (Delete NGO)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn tổ chức NGO muốn xóa và xác nhận xóa |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID tổ chức NGO<br>• Hệ thống tìm kiếm tổ chức NGO trong database<br>• Hệ thống kiểm tra tổ chức NGO có đang được sử dụng bởi chương trình nào không<br>• Nếu đang được sử dụng, hệ thống thông báo lỗi và không cho phép xóa<br>• Nếu không được sử dụng, hệ thống xóa tổ chức NGO khỏi database<br>• Hệ thống thông báo xóa thành công |
-| **Output** | • Kết quả là thông báo xóa thành công hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator selects NGO organization to delete and confirms deletion |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System retrieves NGO organization ID<br>• System searches for NGO organization in database<br>• System checks if NGO organization is being used by any program<br>• If being used, system displays error and does not allow deletion<br>• If not being used, system deletes NGO organization from database<br>• System displays deletion success message |
+| **Output** | • Result is deletion success message or error message for administrator |
 
 ---
 
-### **Tên chức năng 13: Quản lý Gallery - Thêm ảnh (Create Gallery Item)**
+### **Function 13: Gallery Management - Add Image (Create Gallery Item)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn file ảnh hoặc nhập URL ảnh, nhập chú thích (tùy chọn), chọn chương trình liên quan (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra phải có file ảnh hoặc URL ảnh (ít nhất một trong hai)<br>• Nếu có file ảnh, hệ thống kiểm tra loại file (chỉ cho phép ảnh), kiểm tra kích thước file (tối đa 5MB)<br>• Nếu file hợp lệ, hệ thống lưu file vào thư mục và tạo URL ảnh<br>• Nếu có URL ảnh, hệ thống sử dụng URL trực tiếp<br>• Hệ thống tạo bản ghi ảnh mới<br>• Hệ thống lưu thông tin ảnh vào database<br>• Hệ thống trả về thông tin ảnh đã tạo |
-| **Output** | • Kết quả là thông tin ảnh đã tạo hoặc thông báo lỗi cho quản trị viên (lỗi loại file, kích thước file, hoặc không có quyền) |
+| **Input** | • Administrator selects image file or enters image URL, enters caption (optional), selects related program (optional) |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System checks if image file or image URL is provided (at least one of them)<br>• If image file is provided, system checks file type (only images allowed), checks file size (maximum 5MB)<br>• If file is valid, system saves file to folder and creates image URL<br>• If image URL is provided, system uses URL directly<br>• System creates new image record<br>• System saves image information to database<br>• System returns created image information |
+| **Output** | • Result is created image information or error message for administrator (file type error, file size error, or no permission) |
 
 ---
 
-### **Tên chức năng 14: Quản lý Gallery - Xóa ảnh (Delete Gallery Item)**
+### **Function 14: Gallery Management - Delete Image (Delete Gallery Item)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn ảnh muốn xóa và xác nhận xóa |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID ảnh<br>• Hệ thống tìm kiếm ảnh trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống xóa file ảnh khỏi thư mục (nếu là file upload)<br>• Hệ thống xóa bản ghi ảnh khỏi database<br>• Hệ thống thông báo xóa thành công |
-| **Output** | • Kết quả là thông báo xóa thành công hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator selects image to delete and confirms deletion |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System retrieves image ID<br>• System searches for image in database<br>• If not found, system displays error<br>• If found, system deletes image file from folder (if it is an uploaded file)<br>• System deletes image record from database<br>• System displays deletion success message |
+| **Output** | • Result is deletion success message or error message for administrator |
 
 ---
 
-### **Tên chức năng 15: Quản lý Đối tác - Tạo mới (Create Partner)**
+### **Function 15: Partner Management - Create New (Create Partner)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên nhập thông tin đối tác: Tên đối tác, URL logo (tùy chọn), Website (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống tạo đối tác mới<br>• Hệ thống lưu thông tin đối tác vào database<br>• Hệ thống trả về thông tin đối tác đã tạo |
-| **Output** | • Kết quả là thông tin đối tác đã tạo hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator enters partner information: Partner name, Logo URL (optional), Website (optional) |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System checks if input data is valid<br>• System creates new partner<br>• System saves partner information to database<br>• System returns created partner information |
+| **Output** | • Result is created partner information or error message for administrator |
 
 ---
 
-### **Tên chức năng 16: Quản lý Đối tác - Cập nhật (Update Partner)**
+### **Function 16: Partner Management - Update (Update Partner)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn đối tác và nhập thông tin cần cập nhật: Tên đối tác, URL logo, Website (tất cả đều tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống lấy ID đối tác<br>• Hệ thống tìm kiếm đối tác trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống cập nhật các trường thông tin từ dữ liệu quản trị viên nhập<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo cập nhật thành công |
-| **Output** | • Kết quả là thông báo cập nhật thành công hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator selects partner and enters information to update: Partner name, Logo URL, Website (all optional) |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System checks if input data is valid<br>• System retrieves partner ID<br>• System searches for partner in database<br>• If not found, system displays error<br>• If found, system updates information fields from administrator input data<br>• System saves changes to database<br>• System displays update success message |
+| **Output** | • Result is update success message or error message for administrator |
 
 ---
 
-### **Tên chức năng 17: Quản lý Đối tác - Xóa (Delete Partner)**
+### **Function 17: Partner Management - Delete (Delete Partner)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn đối tác muốn xóa và xác nhận xóa |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID đối tác<br>• Hệ thống tìm kiếm đối tác trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống xóa đối tác khỏi database<br>• Hệ thống thông báo xóa thành công |
-| **Output** | • Kết quả là thông báo xóa thành công hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator selects partner to delete and confirms deletion |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System retrieves partner ID<br>• System searches for partner in database<br>• If not found, system displays error<br>• If found, system deletes partner from database<br>• System displays deletion success message |
+| **Output** | • Result is deletion success message or error message for administrator |
 
 ---
 
-### **Tên chức năng 18: Quản lý Nội dung Giới thiệu - Tạo mới (Create About Section)**
+### **Function 18: About Content Management - Create New (Create About Section)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên nhập thông tin phần nội dung: Khóa (duy nhất), Tiêu đề, Nội dung, Dữ liệu bổ sung (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống tạo phần nội dung mới<br>• Hệ thống lưu thông tin phần nội dung vào database<br>• Hệ thống trả về thông tin phần nội dung đã tạo |
-| **Output** | • Kết quả là thông tin phần nội dung đã tạo hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator enters content section information: Key (unique), Title, Content, Additional data (optional) |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System checks if input data is valid<br>• System creates new content section<br>• System saves content section information to database<br>• System returns created content section information |
+| **Output** | • Result is created content section information or error message for administrator |
 
 ---
 
-### **Tên chức năng 19: Quản lý Nội dung Giới thiệu - Cập nhật (Update About Section)**
+### **Function 19: About Content Management - Update (Update About Section)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn phần nội dung và nhập thông tin cần cập nhật: Tiêu đề, Nội dung, Dữ liệu bổ sung (tất cả đều tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống lấy ID phần nội dung<br>• Hệ thống tìm kiếm phần nội dung trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống cập nhật các trường thông tin từ dữ liệu quản trị viên nhập<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo cập nhật thành công |
-| **Output** | • Kết quả là thông báo cập nhật thành công hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator selects content section and enters information to update: Title, Content, Additional data (all optional) |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System checks if input data is valid<br>• System retrieves content section ID<br>• System searches for content section in database<br>• If not found, system displays error<br>• If found, system updates information fields from administrator input data<br>• System saves changes to database<br>• System displays update success message |
+| **Output** | • Result is update success message or error message for administrator |
 
 ---
 
-### **Tên chức năng 20: Quản lý Câu hỏi - Xem tất cả (Get All Queries)**
+### **Function 20: Query Management - View All (Get All Queries)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên truy cập trang quản lý câu hỏi |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống truy vấn database lấy tất cả câu hỏi (kèm thông tin người dùng nếu có)<br>• Hệ thống sắp xếp danh sách câu hỏi theo thời gian (mới nhất trước)<br>• Hệ thống hiển thị danh sách câu hỏi cho quản trị viên |
-| **Output** | • Kết quả là danh sách tất cả câu hỏi hiển thị cho quản trị viên, hoặc thông báo lỗi nếu không có quyền |
+| **Input** | • Administrator accesses query management page |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System queries database to get all queries (including user information if available)<br>• System sorts queries list by time (newest first)<br>• System displays queries list to administrator |
+| **Output** | • Result is list of all queries displayed to administrator, or error message if no permission |
 
 ---
 
-### **Tên chức năng 21: Quản lý Câu hỏi - Trả lời (Reply to Query)**
+### **Function 21: Query Management - Reply (Reply to Query)**
 
 | | |
 |---|---|
-| **Input** | • Quản trị viên chọn câu hỏi và nhập nội dung trả lời |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra nội dung trả lời có hợp lệ không<br>• Hệ thống lấy ID câu hỏi<br>• Hệ thống tìm kiếm câu hỏi trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống cập nhật nội dung trả lời và ngày trả lời<br>• Hệ thống lưu thay đổi vào database<br>• Nếu câu hỏi có người dùng và người dùng có email, hệ thống gửi email phản hồi cho người dùng (gửi bất đồng bộ)<br>• Hệ thống thông báo trả lời thành công |
-| **Output** | • Kết quả là thông báo trả lời thành công hoặc thông báo lỗi cho quản trị viên |
+| **Input** | • Administrator selects query and enters reply content |
+| **Process** | • System checks if administrator is logged in and has Admin role<br>• System checks if reply content is valid<br>• System retrieves query ID<br>• System searches for query in database<br>• If not found, system displays error<br>• If found, system updates reply content and reply date<br>• System saves changes to database<br>• If query has user and user has email, system sends reply email to user (sent asynchronously)<br>• System displays reply success message |
+| **Output** | • Result is reply success message or error message for administrator |
 
 ---
 
-## **Ghi chú**
+## **Notes**
 
-- Tất cả các chức năng yêu cầu đăng nhập đều sử dụng token đăng nhập trong header
-- Các chức năng Admin yêu cầu người dùng có vai trò Admin
-- Email được gửi bất đồng bộ để không làm chậm phản hồi của hệ thống
-- Tất cả mật khẩu được mã hóa trước khi lưu vào database
-- Token xác thực email và đặt lại mật khẩu có thời hạn sử dụng
-# MÔ TẢ CHI TIẾT CÁC CHỨC NĂNG HỆ THỐNG
-
-Tài liệu này mô tả chi tiết các chức năng của hệ thống GIVE-AID theo cấu trúc Input-Process-Output.
-
----
-
-## **COMMON FUNCTIONS (Chức năng dùng chung)**
-
-### **Tên chức năng 1: Đăng ký tài khoản (Register)**
-
-| | |
-|---|---|
-| **Input** | • Người dùng nhập thông tin: Họ tên, Tên đăng nhập, Email, Mật khẩu, Số điện thoại (tùy chọn), Địa chỉ (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống kiểm tra Email và Tên đăng nhập đã tồn tại trong database chưa<br>• Nếu đã tồn tại, hệ thống thông báo lỗi cho người dùng<br>• Nếu chưa tồn tại, hệ thống mã hóa mật khẩu và tạo token xác thực email<br>• Hệ thống tạo tài khoản mới với trạng thái email chưa xác thực<br>• Hệ thống lưu thông tin người dùng vào database<br>• Hệ thống gửi email xác thực cho người dùng (gửi bất đồng bộ, không chặn phản hồi)<br>• Hệ thống trả về token đăng nhập và thông báo thành công |
-| **Output** | • Kết quả là thông báo thành công hoặc thông báo lỗi cho người dùng |
-
----
-
-### **Tên chức năng 2: Đăng nhập (Login)**
-
-| | |
-|---|---|
-| **Input** | • Người dùng nhập Tên đăng nhập hoặc Email và Mật khẩu |
-| **Process** | • Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống xác định người dùng nhập Email hay Tên đăng nhập<br>• Hệ thống tìm kiếm người dùng trong database theo Email hoặc Tên đăng nhập<br>• Nếu không tìm thấy, hệ thống thông báo lỗi đăng nhập<br>• Nếu tìm thấy, hệ thống xác minh mật khẩu<br>• Nếu mật khẩu sai, hệ thống thông báo lỗi đăng nhập<br>• Nếu mật khẩu đúng, hệ thống kiểm tra email đã được xác thực chưa<br>• Nếu email chưa xác thực, hệ thống yêu cầu người dùng xác thực email trước<br>• Nếu email đã xác thực, hệ thống tạo token đăng nhập và trả về cho người dùng |
-| **Output** | • Kết quả là token đăng nhập và thông báo thành công, hoặc thông báo lỗi cho người dùng |
-
----
-
-### **Tên chức năng 3: Xác thực email (Verify Email)**
-
-| | |
-|---|---|
-| **Input** | • Người dùng nhập token xác thực từ link trong email |
-| **Process** | • Hệ thống kiểm tra token có hợp lệ không<br>• Hệ thống tìm kiếm người dùng có token xác thực khớp và chưa hết hạn<br>• Nếu không tìm thấy hoặc token hết hạn, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống đánh dấu email đã được xác thực<br>• Hệ thống xóa token xác thực và thời hạn token<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo xác thực thành công |
-| **Output** | • Kết quả là thông báo xác thực thành công hoặc thông báo lỗi cho người dùng |
-
----
-
-### **Tên chức năng 4: Quên mật khẩu (Forgot Password)**
-
-| | |
-|---|---|
-| **Input** | • Người dùng nhập Email |
-| **Process** | • Hệ thống kiểm tra Email có hợp lệ không<br>• Hệ thống tìm kiếm người dùng trong database theo Email<br>• Nếu tìm thấy, hệ thống tạo token đặt lại mật khẩu và đặt thời hạn hết hạn<br>• Hệ thống lưu token vào database<br>• Hệ thống gửi email chứa link đặt lại mật khẩu cho người dùng (gửi bất đồng bộ)<br>• Hệ thống luôn trả về thông báo thành công (bảo mật, không tiết lộ email có tồn tại hay không) |
-| **Output** | • Kết quả là thông báo thành công cho người dùng (nếu email tồn tại, link đặt lại mật khẩu đã được gửi) |
-
----
-
-### **Tên chức năng 5: Đặt lại mật khẩu (Reset Password)**
-
-| | |
-|---|---|
-| **Input** | • Người dùng nhập token đặt lại mật khẩu từ link trong email và mật khẩu mới |
-| **Process** | • Hệ thống kiểm tra token và mật khẩu mới có hợp lệ không<br>• Hệ thống tìm kiếm người dùng có token đặt lại mật khẩu khớp và chưa hết hạn<br>• Nếu không tìm thấy hoặc token hết hạn, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống mã hóa mật khẩu mới<br>• Hệ thống cập nhật mật khẩu mới vào database<br>• Hệ thống xóa token đặt lại mật khẩu và thời hạn token<br>• Hệ thống thông báo đặt lại mật khẩu thành công |
-| **Output** | • Kết quả là thông báo đặt lại mật khẩu thành công hoặc thông báo lỗi cho người dùng |
-
----
-
-### **Tên chức năng 6: Thực hiện quyên góp (Donate)**
-
-| | |
-|---|---|
-| **Input** | • Người dùng nhập thông tin quyên góp: Số tiền, Nguyên nhân, Họ tên, Email, Số điện thoại (tùy chọn), Địa chỉ (tùy chọn), Phương thức thanh toán (tùy chọn), Chọn chương trình (tùy chọn), Chọn ẩn danh (tùy chọn), Đăng ký nhận tin (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống kiểm tra số tiền lớn hơn 0, nguyên nhân không rỗng, họ tên không rỗng, email không rỗng<br>• Hệ thống tạo mã giao dịch duy nhất cho quyên góp<br>• Nếu người dùng chọn ẩn danh, hệ thống đặt tên người quyên góp là "Anonymous"<br>• Hệ thống tạo bản ghi quyên góp với trạng thái thanh toán thành công<br>• Hệ thống lưu thông tin quyên góp vào database<br>• Nếu không phải ẩn danh và có email, hệ thống gửi email xác nhận quyên góp cho người dùng (gửi bất đồng bộ)<br>• Hệ thống trả về thông tin quyên góp đã tạo |
-| **Output** | • Kết quả là thông tin quyên góp đã tạo hoặc thông báo lỗi cho người dùng |
-
----
-
-### **Tên chức năng 7: Xem danh sách chương trình (View Programs)**
-
-| | |
-|---|---|
-| **Input** | • Người dùng truy cập trang danh sách chương trình |
-| **Process** | • Hệ thống truy vấn database lấy tất cả chương trình<br>• Hệ thống sắp xếp danh sách chương trình<br>• Hệ thống hiển thị danh sách chương trình cho người dùng |
-| **Output** | • Kết quả là danh sách các chương trình hiển thị cho người dùng |
-
----
-
-### **Tên chức năng 8: Xem thống kê chương trình (View Program Stats)**
-
-| | |
-|---|---|
-| **Input** | • Người dùng chọn chương trình muốn xem thống kê |
-| **Process** | • Hệ thống lấy thông tin chương trình từ database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống tính tổng số tiền quyên góp cho chương trình<br>• Hệ thống tính phần trăm hoàn thành mục tiêu<br>• Hệ thống đếm số lượt đăng ký tham gia chương trình<br>• Hệ thống tính số tiền còn lại cần quyên góp (nếu có mục tiêu)<br>• Hệ thống hiển thị thống kê cho người dùng |
-| **Output** | • Kết quả là thông tin thống kê chương trình hiển thị cho người dùng, hoặc thông báo lỗi nếu không tìm thấy chương trình |
-
----
-
-### **Tên chức năng 9: Đăng ký tham gia chương trình (Register for Program)**
-
-| | |
-|---|---|
-| **Input** | • Người dùng nhập thông tin: Họ tên, Email, Số điện thoại (tùy chọn) và chọn chương trình muốn đăng ký |
-| **Process** | • Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống kiểm tra chương trình có tồn tại trong database không<br>• Nếu không tồn tại, hệ thống thông báo lỗi<br>• Nếu tồn tại, hệ thống kiểm tra người dùng đã đăng ký chương trình này chưa (nếu đã đăng nhập)<br>• Nếu đã đăng ký, hệ thống thông báo lỗi<br>• Nếu chưa đăng ký, hệ thống tạo bản ghi đăng ký mới<br>• Hệ thống lưu thông tin đăng ký vào database<br>• Hệ thống thông báo đăng ký thành công |
-| **Output** | • Kết quả là thông báo đăng ký thành công hoặc thông báo lỗi cho người dùng |
-
----
-
-### **Tên chức năng 10: Gửi câu hỏi/Yêu cầu (Submit Query)**
-
-| | |
-|---|---|
-| **Input** | • Người dùng nhập thông tin: Tiêu đề, Nội dung câu hỏi, Email, Họ tên (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống tạo bản ghi câu hỏi mới<br>• Hệ thống lưu thông tin câu hỏi vào database<br>• Hệ thống trả về thông tin câu hỏi đã tạo |
-| **Output** | • Kết quả là thông tin câu hỏi đã được gửi thành công |
-
----
-
-### **Tên chức năng 11: Xem hồ sơ cá nhân (View Profile)** - Chỉ Authenticated User
-
-| | |
-|---|---|
-| **Input** | • Người dùng đã đăng nhập truy cập trang hồ sơ cá nhân |
-| **Process** | • Hệ thống kiểm tra token đăng nhập có hợp lệ không<br>• Hệ thống lấy thông tin người dùng từ token<br>• Nếu token không hợp lệ, hệ thống từ chối truy cập<br>• Hệ thống truy vấn database lấy thông tin hồ sơ cá nhân của người dùng<br>• Nếu chưa có hồ sơ, hệ thống trả về thông tin rỗng<br>• Nếu có hồ sơ, hệ thống hiển thị thông tin hồ sơ cho người dùng |
-| **Output** | • Kết quả là thông tin hồ sơ cá nhân hiển thị cho người dùng, hoặc thông báo lỗi nếu không có quyền truy cập |
-
----
-
-### **Tên chức năng 12: Cập nhật hồ sơ cá nhân (Update Profile)** - Chỉ Authenticated User
-
-| | |
-|---|---|
-| **Input** | • Người dùng đã đăng nhập nhập thông tin cần cập nhật: Họ tên, Số điện thoại, Địa chỉ, Ngày sinh, Giới tính (tất cả đều tùy chọn) |
-| **Process** | • Hệ thống kiểm tra token đăng nhập có hợp lệ không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống lấy thông tin người dùng từ token<br>• Hệ thống tìm kiếm hồ sơ cá nhân của người dùng trong database<br>• Nếu chưa có hồ sơ, hệ thống tạo hồ sơ mới<br>• Nếu đã có hồ sơ, hệ thống cập nhật các trường thông tin từ dữ liệu người dùng nhập<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo cập nhật thành công |
-| **Output** | • Kết quả là thông báo cập nhật thành công hoặc thông báo lỗi cho người dùng |
-
----
-
-### **Tên chức năng 13: Đổi mật khẩu (Change Password)** - Chỉ Authenticated User
-
-| | |
-|---|---|
-| **Input** | • Người dùng đã đăng nhập nhập mật khẩu cũ và mật khẩu mới |
-| **Process** | • Hệ thống kiểm tra token đăng nhập có hợp lệ không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống lấy thông tin người dùng từ token<br>• Hệ thống tìm kiếm người dùng trong database<br>• Hệ thống xác minh mật khẩu cũ có đúng không<br>• Nếu mật khẩu cũ sai, hệ thống thông báo lỗi<br>• Nếu mật khẩu cũ đúng, hệ thống mã hóa mật khẩu mới<br>• Hệ thống cập nhật mật khẩu mới vào database<br>• Hệ thống thông báo đổi mật khẩu thành công |
-| **Output** | • Kết quả là thông báo đổi mật khẩu thành công hoặc thông báo lỗi cho người dùng |
-
----
-
-### **Tên chức năng 14: Xem lịch sử quyên góp (View Donation History)** - Chỉ Authenticated User
-
-| | |
-|---|---|
-| **Input** | • Người dùng đã đăng nhập truy cập trang lịch sử quyên góp |
-| **Process** | • Hệ thống kiểm tra token đăng nhập có hợp lệ không<br>• Hệ thống lấy thông tin người dùng từ token<br>• Hệ thống truy vấn database lấy tất cả quyên góp của người dùng<br>• Hệ thống sắp xếp danh sách quyên góp theo thời gian (mới nhất trước)<br>• Hệ thống hiển thị danh sách quyên góp cho người dùng |
-| **Output** | • Kết quả là danh sách các quyên góp của người dùng hiển thị trên trang |
-
----
-
-## **ADMIN FUNCTIONS (Chức năng quản trị)**
-
-### **Tên chức năng 1: Quản lý người dùng - Xem danh sách (Get All Users)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên truy cập trang quản lý người dùng |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Nếu không có quyền, hệ thống từ chối truy cập<br>• Hệ thống truy vấn database lấy tất cả người dùng<br>• Hệ thống hiển thị danh sách người dùng cho quản trị viên (không hiển thị mật khẩu) |
-| **Output** | • Kết quả là danh sách tất cả người dùng hiển thị cho quản trị viên, hoặc thông báo lỗi nếu không có quyền |
-
----
-
-### **Tên chức năng 2: Quản lý người dùng - Xem chi tiết (Get User by ID)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn người dùng muốn xem chi tiết |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID người dùng<br>• Hệ thống truy vấn database tìm kiếm người dùng theo ID<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống hiển thị thông tin chi tiết người dùng cho quản trị viên |
-| **Output** | • Kết quả là thông tin chi tiết người dùng hiển thị cho quản trị viên, hoặc thông báo lỗi nếu không tìm thấy hoặc không có quyền |
-
----
-
-### **Tên chức năng 3: Quản lý người dùng - Cập nhật vai trò (Update User Role)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn người dùng và chọn vai trò mới (User hoặc Admin) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra vai trò có hợp lệ không<br>• Hệ thống lấy ID người dùng và vai trò mới<br>• Hệ thống tìm kiếm người dùng trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống cập nhật vai trò mới<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo cập nhật thành công |
-| **Output** | • Kết quả là thông báo cập nhật vai trò thành công hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 4: Quản lý người dùng - Xóa người dùng (Delete User)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn người dùng muốn xóa và xác nhận xóa |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID người dùng<br>• Hệ thống tìm kiếm người dùng trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống xóa người dùng khỏi database (có thể xóa kèm các bản ghi liên quan như quyên góp, câu hỏi)<br>• Hệ thống thông báo xóa thành công |
-| **Output** | • Kết quả là thông báo xóa thành công hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 5: Quản lý quyên góp - Xem tất cả (Get All Donations)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên truy cập trang quản lý quyên góp |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống truy vấn database lấy tất cả quyên góp (kèm thông tin người dùng nếu có)<br>• Hệ thống sắp xếp danh sách quyên góp theo thời gian (mới nhất trước)<br>• Hệ thống hiển thị danh sách quyên góp cho quản trị viên |
-| **Output** | • Kết quả là danh sách tất cả quyên góp hiển thị cho quản trị viên, hoặc thông báo lỗi nếu không có quyền |
-
----
-
-### **Tên chức năng 6: Quản lý quyên góp - Xem chi tiết (Get Donation by ID)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn quyên góp muốn xem chi tiết |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID quyên góp<br>• Hệ thống truy vấn database tìm kiếm quyên góp theo ID (kèm thông tin người dùng)<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống hiển thị thông tin chi tiết quyên góp cho quản trị viên |
-| **Output** | • Kết quả là thông tin chi tiết quyên góp hiển thị cho quản trị viên, hoặc thông báo lỗi nếu không tìm thấy hoặc không có quyền |
-
----
-
-### **Tên chức năng 7: Quản lý chương trình - Tạo mới (Create Program)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên nhập thông tin chương trình: Tiêu đề, Mô tả, Ngày bắt đầu (tùy chọn), Ngày kết thúc (tùy chọn), Địa điểm (tùy chọn), Mục tiêu số tiền (tùy chọn), Chọn tổ chức NGO (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống tạo chương trình mới<br>• Hệ thống lưu thông tin chương trình vào database<br>• Hệ thống trả về thông tin chương trình đã tạo |
-| **Output** | • Kết quả là thông tin chương trình đã tạo hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 8: Quản lý chương trình - Cập nhật (Update Program)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn chương trình và nhập thông tin cần cập nhật: Tiêu đề, Mô tả, Ngày bắt đầu, Ngày kết thúc, Địa điểm, Mục tiêu số tiền, Tổ chức NGO (tất cả đều tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống lấy ID chương trình<br>• Hệ thống tìm kiếm chương trình trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống cập nhật các trường thông tin từ dữ liệu quản trị viên nhập<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo cập nhật thành công |
-| **Output** | • Kết quả là thông báo cập nhật thành công hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 9: Quản lý chương trình - Xóa (Delete Program)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn chương trình muốn xóa và xác nhận xóa |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID chương trình<br>• Hệ thống tìm kiếm chương trình trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống xóa chương trình khỏi database (có thể xóa kèm các bản ghi liên quan như đăng ký tham gia, quyên góp, ảnh gallery)<br>• Hệ thống thông báo xóa thành công |
-| **Output** | • Kết quả là thông báo xóa thành công hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 10: Quản lý NGO - Tạo mới (Create NGO)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên nhập thông tin tổ chức NGO: Tên tổ chức, Mô tả (tùy chọn), URL logo (tùy chọn), Website (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống tạo tổ chức NGO mới<br>• Hệ thống lưu thông tin tổ chức NGO vào database<br>• Hệ thống trả về thông tin tổ chức NGO đã tạo |
-| **Output** | • Kết quả là thông tin tổ chức NGO đã tạo hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 11: Quản lý NGO - Cập nhật (Update NGO)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn tổ chức NGO và nhập thông tin cần cập nhật: Tên tổ chức, Mô tả, URL logo, Website (tất cả đều tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống lấy ID tổ chức NGO<br>• Hệ thống tìm kiếm tổ chức NGO trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống cập nhật các trường thông tin từ dữ liệu quản trị viên nhập<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo cập nhật thành công |
-| **Output** | • Kết quả là thông báo cập nhật thành công hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 12: Quản lý NGO - Xóa (Delete NGO)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn tổ chức NGO muốn xóa và xác nhận xóa |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID tổ chức NGO<br>• Hệ thống tìm kiếm tổ chức NGO trong database<br>• Hệ thống kiểm tra tổ chức NGO có đang được sử dụng bởi chương trình nào không<br>• Nếu đang được sử dụng, hệ thống thông báo lỗi và không cho phép xóa<br>• Nếu không được sử dụng, hệ thống xóa tổ chức NGO khỏi database<br>• Hệ thống thông báo xóa thành công |
-| **Output** | • Kết quả là thông báo xóa thành công hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 13: Quản lý Gallery - Thêm ảnh (Create Gallery Item)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn file ảnh hoặc nhập URL ảnh, nhập chú thích (tùy chọn), chọn chương trình liên quan (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra phải có file ảnh hoặc URL ảnh (ít nhất một trong hai)<br>• Nếu có file ảnh, hệ thống kiểm tra loại file (chỉ cho phép ảnh), kiểm tra kích thước file (tối đa 5MB)<br>• Nếu file hợp lệ, hệ thống lưu file vào thư mục và tạo URL ảnh<br>• Nếu có URL ảnh, hệ thống sử dụng URL trực tiếp<br>• Hệ thống tạo bản ghi ảnh mới<br>• Hệ thống lưu thông tin ảnh vào database<br>• Hệ thống trả về thông tin ảnh đã tạo |
-| **Output** | • Kết quả là thông tin ảnh đã tạo hoặc thông báo lỗi cho quản trị viên (lỗi loại file, kích thước file, hoặc không có quyền) |
-
----
-
-### **Tên chức năng 14: Quản lý Gallery - Xóa ảnh (Delete Gallery Item)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn ảnh muốn xóa và xác nhận xóa |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID ảnh<br>• Hệ thống tìm kiếm ảnh trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống xóa file ảnh khỏi thư mục (nếu là file upload)<br>• Hệ thống xóa bản ghi ảnh khỏi database<br>• Hệ thống thông báo xóa thành công |
-| **Output** | • Kết quả là thông báo xóa thành công hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 15: Quản lý Đối tác - Tạo mới (Create Partner)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên nhập thông tin đối tác: Tên đối tác, URL logo (tùy chọn), Website (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống tạo đối tác mới<br>• Hệ thống lưu thông tin đối tác vào database<br>• Hệ thống trả về thông tin đối tác đã tạo |
-| **Output** | • Kết quả là thông tin đối tác đã tạo hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 16: Quản lý Đối tác - Cập nhật (Update Partner)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn đối tác và nhập thông tin cần cập nhật: Tên đối tác, URL logo, Website (tất cả đều tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống lấy ID đối tác<br>• Hệ thống tìm kiếm đối tác trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống cập nhật các trường thông tin từ dữ liệu quản trị viên nhập<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo cập nhật thành công |
-| **Output** | • Kết quả là thông báo cập nhật thành công hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 17: Quản lý Đối tác - Xóa (Delete Partner)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn đối tác muốn xóa và xác nhận xóa |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống lấy ID đối tác<br>• Hệ thống tìm kiếm đối tác trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống xóa đối tác khỏi database<br>• Hệ thống thông báo xóa thành công |
-| **Output** | • Kết quả là thông báo xóa thành công hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 18: Quản lý Nội dung Giới thiệu - Tạo mới (Create About Section)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên nhập thông tin phần nội dung: Khóa (duy nhất), Tiêu đề, Nội dung, Dữ liệu bổ sung (tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống tạo phần nội dung mới<br>• Hệ thống lưu thông tin phần nội dung vào database<br>• Hệ thống trả về thông tin phần nội dung đã tạo |
-| **Output** | • Kết quả là thông tin phần nội dung đã tạo hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 19: Quản lý Nội dung Giới thiệu - Cập nhật (Update About Section)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn phần nội dung và nhập thông tin cần cập nhật: Tiêu đề, Nội dung, Dữ liệu bổ sung (tất cả đều tùy chọn) |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra dữ liệu đầu vào có hợp lệ không<br>• Hệ thống lấy ID phần nội dung<br>• Hệ thống tìm kiếm phần nội dung trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống cập nhật các trường thông tin từ dữ liệu quản trị viên nhập<br>• Hệ thống lưu thay đổi vào database<br>• Hệ thống thông báo cập nhật thành công |
-| **Output** | • Kết quả là thông báo cập nhật thành công hoặc thông báo lỗi cho quản trị viên |
-
----
-
-### **Tên chức năng 20: Quản lý Câu hỏi - Xem tất cả (Get All Queries)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên truy cập trang quản lý câu hỏi |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống truy vấn database lấy tất cả câu hỏi (kèm thông tin người dùng nếu có)<br>• Hệ thống sắp xếp danh sách câu hỏi theo thời gian (mới nhất trước)<br>• Hệ thống hiển thị danh sách câu hỏi cho quản trị viên |
-| **Output** | • Kết quả là danh sách tất cả câu hỏi hiển thị cho quản trị viên, hoặc thông báo lỗi nếu không có quyền |
-
----
-
-### **Tên chức năng 21: Quản lý Câu hỏi - Trả lời (Reply to Query)**
-
-| | |
-|---|---|
-| **Input** | • Quản trị viên chọn câu hỏi và nhập nội dung trả lời |
-| **Process** | • Hệ thống kiểm tra quản trị viên đã đăng nhập và có quyền Admin không<br>• Hệ thống kiểm tra nội dung trả lời có hợp lệ không<br>• Hệ thống lấy ID câu hỏi<br>• Hệ thống tìm kiếm câu hỏi trong database<br>• Nếu không tìm thấy, hệ thống thông báo lỗi<br>• Nếu tìm thấy, hệ thống cập nhật nội dung trả lời và ngày trả lời<br>• Hệ thống lưu thay đổi vào database<br>• Nếu câu hỏi có người dùng và người dùng có email, hệ thống gửi email phản hồi cho người dùng (gửi bất đồng bộ)<br>• Hệ thống thông báo trả lời thành công |
-| **Output** | • Kết quả là thông báo trả lời thành công hoặc thông báo lỗi cho quản trị viên |
-
----
-
-## **Ghi chú**
-
-- Tất cả các chức năng yêu cầu đăng nhập đều sử dụng token đăng nhập trong header
-- Các chức năng Admin yêu cầu người dùng có vai trò Admin
-- Email được gửi bất đồng bộ để không làm chậm phản hồi của hệ thống
-- Tất cả mật khẩu được mã hóa trước khi lưu vào database
-- Token xác thực email và đặt lại mật khẩu có thời hạn sử dụng
+- All functions requiring login use login token in header
+- Admin functions require user to have Admin role
+- Emails are sent asynchronously to avoid slowing down system response
+- All passwords are encrypted before saving to database
+- Email verification tokens and password reset tokens have expiration time
